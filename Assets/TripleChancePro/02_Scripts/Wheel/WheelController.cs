@@ -22,17 +22,23 @@ namespace TripleChanceProTimer
         private int tempBetNumber;
         public int multiplierObjId;
         [SerializeField] private GameObject WinPopUp;
+        [SerializeField] private TextMeshProUGUI WinPopUpAmountText;
         public void PlaceBet(int betNumber)
         {
             circleAnim.transform.gameObject.SetActive(true);
             circleAnim.Rebind();
             //Invoke(nameof(ShowMultiPlierImage), 2.8f);
+            for (int i = 0; i < multiplierObj.Length; i++)
+            {
+                multiplierObj[i].SetActive(false);
+            }
             WinImgHide();
             bet_number = betNumber;
             tempBetNumber = bet_number;
             for (int i = 0; i < all_wheel.Count; i++)
             {
-                all_wheel[i].StartRotation(indes_Wise_Angle[bet_number % 10]);
+                all_wheel[i].HideWinImage();
+                all_wheel[i].StartRotation(indes_Wise_Angle[bet_number % 10], (bet_number % 10));
                 bet_number /= 10;
             }
         }
@@ -48,8 +54,8 @@ namespace TripleChanceProTimer
         }
         public void WinImgShow()
         {
-            win_obj.SetActive(true);
-            winAnim.Play("WinImgWin");
+            //win_obj.SetActive(true);
+            //winAnim.Play("WinImgWin");
             // StartCoroutine(DelayShow());
 
           //  MultilierObjShow(multiplierObjId, false);
@@ -58,6 +64,7 @@ namespace TripleChanceProTimer
             TripleChanceManger.instence.OnWheelRotateComplete();
             if (TripleChanceManger.instence.winAmount > 0)
             {
+                WinPopUpAmountText.text = TripleChanceManger.instence.winAmount.ToString();
                 StartCoroutine(DelayShow());
             }
             else
@@ -68,7 +75,7 @@ namespace TripleChanceProTimer
         }
         private void WinImgHide()
         {
-            win_obj.SetActive(false);
+            //win_obj.SetActive(false);
             winShowText.gameObject.SetActive(false);
             triple_ChanceProImage.SetActive(false);
         }
@@ -76,7 +83,7 @@ namespace TripleChanceProTimer
         {
             WinPopUp.SetActive(true);
             youwinText.gameObject.SetActive(true);
-            yield return new WaitForSecondsRealtime(1.5f);
+            yield return new WaitForSecondsRealtime(3f);
             youwinText.gameObject.SetActive(false);
             WinPopUp.SetActive(false);
             winShowText.gameObject.SetActive(true);
@@ -92,7 +99,7 @@ namespace TripleChanceProTimer
         {
             if (id > 1)
             {
-            multiplierObj[id].SetActive(active);
+                multiplierObj[id].SetActive(active);
             }
         }
     }

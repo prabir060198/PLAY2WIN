@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
 
 	[SerializeField] private MainData mainData;
 	[SerializeField] Timer timer;
+	[SerializeField] private GameObject backPopUp;
 	public UnityEvent OnWin;
 	private int totalPointsSpent;
 
@@ -100,7 +101,13 @@ public class GameManager : MonoBehaviour
 		GetLastFewDrawDetails();
 		SendPendingDrawDetails();
 	}
-
+	void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.Escape) && !backPopUp.activeInHierarchy)
+		{
+			backPopUp.SetActive(true);
+		}
+	}
 	private void SendPendingDrawDetails()
 	{
 		StartCoroutine(SendPendingDrawDetailsCoroutine());
@@ -129,8 +136,10 @@ public class GameManager : MonoBehaviour
 			Debug.Log(www.downloadHandler.text);
 			mainData.pendingDrawDetails = JsonUtility.FromJson<PendingDrawDetails>(www.downloadHandler.text);
 			www.downloadHandler.Dispose();
-			gameIdText.text = mainData.pendingDrawDetails.Draws[0].GID;
-			ProcessTimer();
+            //gameIdText.text = mainData.pendingDrawDetails.Draws[0].GID;
+			
+
+           ProcessTimer();
 		}
 
 		www.Dispose();
@@ -138,13 +147,16 @@ public class GameManager : MonoBehaviour
 
 	void ProcessTimer()
 	{
-		var timeOfDay = Convert.ToDateTime(mainData.pendingDrawDetails.Now).TimeOfDay;
-		var drawTime = Convert.ToDateTime(mainData.pendingDrawDetails.Draws[0].DrawTime).TimeOfDay;
+        //var timeOfDay = Convert.ToDateTime(mainData.pendingDrawDetails.Now).TimeOfDay;
+        //var drawTime = Convert.ToDateTime(mainData.pendingDrawDetails.Draws[0].DrawTime).TimeOfDay;
+        var timeOfDay = Convert.ToDateTime(DateTime.Now).TimeOfDay;
+        var drawTime = Convert.ToDateTime(DateTime.Now.AddSeconds(30)).TimeOfDay;
 		
-		timer.SetCurrentDrawTime(drawTime);
-		var remainingTime = drawTime.Subtract(timeOfDay);
-		print(remainingTime);
-		timer.RunTimer((float)remainingTime.TotalSeconds);
+		timer.SetCurrentDrawTime(drawTime);		
+		//var remainingTime = drawTime.Subtract(timeOfDay);
+		//print(remainingTime);
+		//timer.RunTimer((float)remainingTime.TotalSeconds);
+		timer.RunTimer(30);
 	}
 
 	private void OnApplicationFocus(bool focus)
@@ -248,7 +260,7 @@ public class GameManager : MonoBehaviour
 
 	public void GoBackToLobby()
 	{
-		SceneManager.LoadScene("Lobby Scene");
+		SceneManager.LoadScene("LobbyScene");
 	}
 
 	public bool DebitBalance(int amount)
@@ -348,7 +360,7 @@ public class GameManager : MonoBehaviour
 			);
 
 		var bookTicketDetailsJson = JsonUtility.ToJson(bookTicketDetails);
-		print(bookTicketDetailsJson);
+		Debug.Log("..........."+bookTicketDetailsJson);
 		UnityWebRequest www = UnityWebRequest.Post(bookTicketLink, bookTicketDetailsJson);
 		byte[] bodyRaw = Encoding.UTF8.GetBytes(bookTicketDetailsJson);
 		www.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
